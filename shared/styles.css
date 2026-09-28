@@ -78,7 +78,14 @@ body {
   50%      { opacity: .35; }
 }
 
-.strip-domain { display: none; color: inherit; text-decoration: none; }
+.strip-domain {
+  display: none;
+  /* bigger tap area without moving the text */
+  margin: -.6rem -.4rem;
+  padding: .6rem .4rem;
+  color: inherit;
+  text-decoration: none;
+}
 .strip-domain:hover { color: var(--text); }
 
 /* ---- Main ---- */
@@ -383,6 +390,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
   font-size: 1.25rem;
   letter-spacing: -.01em;
 }
+.prose h2, .prose h3 { scroll-margin-top: 1.25rem; }
+.prose .roadmap h2 { scroll-margin-top: 4rem; }  /* keep the status pill above it in view */
 .prose h3 { margin: 1.75rem 0 .6rem; font-size: 1.05rem; letter-spacing: -.005em; }
 .prose h2 + h3 { margin-top: 1rem; }
 .prose code {

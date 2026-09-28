@@ -178,11 +178,13 @@ def md_blocks(src, indent):
         return ""
     for block in re.split(r"\n\s*\n", src.strip()):
         lines = [l.rstrip() for l in block.strip().splitlines()]
-        heading = re.match(r"(#{1,4})\s+(.+)", lines[0])
+        heading = re.match(r"(#{1,4})\s+(.+?)(?:\s+\{#([a-z0-9-]+)\})?\s*$", lines[0])
         if heading and len(lines) == 1:
+            # "## Title {#anchor}" pins a stable id that other pages can link to.
             level = max(2, len(heading.group(1)))
             text = heading.group(2).strip()
-            blocks.append('<h%d id="%s">%s</h%d>' % (level, slugify(text), md_inline(text), level))
+            anchor = heading.group(3) or slugify(text)
+            blocks.append('<h%d id="%s">%s</h%d>' % (level, anchor, md_inline(text), level))
         elif all(l.startswith("- ") for l in lines):
             items = []
             for l in lines:

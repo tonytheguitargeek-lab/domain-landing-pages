@@ -28,7 +28,7 @@ For the camera headsets I’ve checked, a known-good mic pair reads approximatel
 
 That gives a dedicated tester enough information to make a quick PASS / FAIL decision without dragging out a meter and remembering pin combinations.
 
-## Building the Pocket Tester
+## Building the Pocket Tester {#building-the-pocket-tester}
 
 The first prototype, from board design to a printed case in hand. Select any image to open the full-size version.
 
@@ -116,7 +116,7 @@ The mic-pair readings were taken on the meter's kΩ range (0.196 and 0.186 kΩ) 
 - All other combinations open, including shield
 
 ::: roadmap Part 2 coming soon
-## Part 2: From Prototype to Field Tool
+## Part 2: From Prototype to Field Tool {#part-2}
 
 This build is still in progress. Next up: assemble the Rev A3 boards, program and test them with real headsets, then use what we learn to shrink the enclosure and refine the design into a smaller final version.
 

@@ -26,19 +26,19 @@
     {
       "label": "Projects",
       "blurb": "Builds, fixes, and field notes from the truck.",
-      "href": "",
+      "href": "field-notes/beyer-headsets/#building-the-pocket-tester",
       "status": "Stocking the shelf"
     },
     {
       "label": "Contact",
       "blurb": "Questions, war stories, or a signal that won't behave.",
-      "href": "",
-      "status": "Address TBD"
+      "href": "mailto:tony@badaudioguy.com",
+      "status": "Get in touch"
     },
     {
       "label": "Coming Soon",
       "blurb": "Broadcast test tools currently living on the bench.",
-      "href": "",
+      "href": "field-notes/beyer-headsets/#part-2",
       "status": "On the bench"
     }
   ],
