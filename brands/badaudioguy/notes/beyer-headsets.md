@@ -24,7 +24,7 @@ This video, and the multimeter troubleshooting workflow that goes with it, helpe
 
 The useful field question isn’t “what is the exact impedance?” It’s whether the mic element is there, the ear elements are there, and the wiring makes sense for this headset type.
 
-For the camera headsets I’ve checked, the mic pair reads very low resistance, while the ear elements are around the 50–60 ohm range individually. A double-muff headset also gives you the expected series relationship across both ear elements.
+For the camera headsets I’ve checked, a known-good mic pair reads approximately 186–196 ohms, and each ear element reads approximately 52–58 ohms. A double-muff headset also gives you the expected series path across both ear elements, approximately 103 ohms.
 
 That gives a dedicated tester enough information to make a quick PASS / FAIL decision without dragging out a meter and remembering pin combinations.
 
@@ -53,16 +53,22 @@ Before the dedicated tester concept, the manual check was basically:
 
 Pin-to-pin readings from the 5-pin camera headsets checked for the tester project. They're reference points for those headsets, not a spec for every model; when in doubt, compare against a known-good headset of the same type.
 
+- Known-good mic pair: approximately 186–196 ohms
+- Ear element: approximately 52–58 ohms
+- Double-muff series path: approximately 103 ohms
+
+The mic-pair readings were taken on the meter's kΩ range (0.196 and 0.186 kΩ) and are shown below in ohms.
+
 **Double-muff headset**
 
-- `1–2` = 0.196
-- `3–4` = 52.0
-- `3–5` = 52.0
-- `4–5` = 103
+- `1–2` = 196 ohms
+- `3–4` = 52.0 ohms
+- `3–5` = 52.0 ohms
+- `4–5` = 103 ohms
 - All other combinations open, including shield
 
 **Single-muff headset**
 
-- `1–2` = 0.186
-- `3–4` = 57.6
+- `1–2` = 186 ohms
+- `3–4` = 57.6 ohms
 - All other combinations open, including shield
