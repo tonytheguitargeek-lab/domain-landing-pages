@@ -162,11 +162,21 @@ needs hosting, either give it its own repo (copy this one and change `PAGES_BRAN
 host that serves several sites from one repo. That choice can wait until it's needed.
 
 Notes:
+- The link-preview image (`og:image`) must be an absolute URL. The workflow passes Pages' own
+  base URL as `ASSET_BASE_URL`, so previews work on the github.io address now and switch to the
+  custom domain automatically once one is connected. Local builds fall back to the canonical host.
 - Asset paths are relative, so the page works under the `/<repo>/` subpath of the preview URL.
 - Canonical, Open Graph, and sitemap URLs already point at the real domain from `brand.json`;
   that's intended, so search engines credit the real domain rather than the preview URL.
 - Pages from a **private** repo require a paid GitHub plan, and the published site is still
   publicly reachable.
+
+## Brand images
+
+`brands/badaudioguy/branding/make_assets.py` regenerates `og-image.png` (1200×630),
+`apple-touch-icon.png` (180×180), and a 16/32/48 px `favicon.ico` from the brand colors and
+copy in `brand.json`. It needs Pillow and the macOS system fonts; it's a local tool, not part of
+the build. `favicon.ico` in `assets/` is also copied to the site root.
 
 ## brand.json notes
 

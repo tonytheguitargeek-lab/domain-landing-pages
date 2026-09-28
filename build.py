@@ -13,6 +13,7 @@ No dependencies beyond the Python 3 standard library.
 import datetime
 import html
 import json
+import os
 import re
 import shutil
 import sys
@@ -240,11 +241,19 @@ class Site:
         self.og_image = self._og_image()
 
     def _og_image(self):
+        """Absolute URL + size of the link-preview image. Previews need an absolute URL, so it
+        uses ASSET_BASE_URL when set (the Pages workflow passes the site's live base URL, so
+        previews work on the temporary github.io address and later on the custom domain),
+        otherwise the canonical host."""
         og = self.cfg.get("og_image")
-        if og and (self.dir / og).is_file():
-            return self.base_url + og
-        self.warn("og_image missing (%s) — 1200x630 PNG/JPG for link previews" % og)
-        return None
+        if not (og and (self.dir / og).is_file()):
+            self.warn("og_image missing (%s) — 1200x630 PNG/JPG for link previews" % og)
+            return None
+        base = os.environ.get("ASSET_BASE_URL", "").strip() or self.base_url
+        width, height = image_size(self.dir / og)
+        if (width, height) != (1200, 630):
+            self.warn("og_image is %dx%d; 1200x630 is recommended" % (width, height))
+        return base.rstrip("/") + "/" + og, width, height
 
     def icon_links(self, root):
         links = []
@@ -253,7 +262,7 @@ class Site:
             kind = ' type="image/svg+xml"' if favicon.endswith(".svg") else ""
             links.append('<link rel="icon" href="%s%s"%s>' % (root, esc(favicon), kind))
         if (self.dir / "assets" / "favicon.ico").is_file():
-            links.insert(0, '<link rel="icon" href="%sfavicon.ico" sizes="32x32">' % root)
+            links.insert(0, '<link rel="icon" href="%sfavicon.ico" sizes="16x16 32x32 48x48">' % root)
         touch = self.cfg.get("apple_touch_icon")
         if touch and (self.dir / touch).is_file():
             links.append('<link rel="apple-touch-icon" href="%s%s">' % (root, esc(touch)))
@@ -266,10 +275,15 @@ class Site:
         url = self.base_url + rel_path
         og_meta, card = "", "summary"
         if self.og_image:
+            og_url, og_w, og_h = self.og_image
+            alt = "%s: %s" % (self.cfg["name"], self.cfg["tagline"])
             og_meta = ('<meta property="og:image" content="%s">\n'
-                       '<meta property="og:image:width" content="1200">\n'
-                       '<meta property="og:image:height" content="630">\n'
-                       '<meta property="og:image:alt" content="%s">') % (esc(self.og_image), esc(self.cfg["name"]))
+                       '<meta property="og:image:width" content="%d">\n'
+                       '<meta property="og:image:height" content="%d">\n'
+                       '<meta property="og:image:alt" content="%s">\n'
+                       '<meta name="twitter:image" content="%s">\n'
+                       '<meta name="twitter:image:alt" content="%s">') % (
+                esc(og_url), og_w, og_h, esc(alt), esc(og_url), esc(alt))
             card = "summary_large_image"
         ctx = {
             "lang": esc(self.cfg.get("lang", "en")),

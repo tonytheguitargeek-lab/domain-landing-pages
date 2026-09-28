@@ -26,16 +26,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - id: pages
+        uses: actions/configure-pages@v6
+
+      # Link-preview images need absolute URLs: point them at wherever Pages is serving
+      # the site (the github.io address now, the custom domain once one is connected).
       - name: Build site
         run: python3 build.py "$PAGES_BRAND"
+        env:
+          ASSET_BASE_URL: ${{ steps.pages.outputs.base_url }}
 
       - name: Locate output folder
         id: site
         run: |
           domain=$(python3 -c "import json; print(json.load(open('brands/$PAGES_BRAND/brand.json'))['domain'])")
           echo "dir=dist/$domain" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v5
         with:
