@@ -60,6 +60,12 @@
     ]
   },
 
+  "social": [
+    { "label": "YouTube", "url": "https://www.youtube.com/@BadAudioGuy" },
+    { "label": "Instagram", "url": "https://www.instagram.com/badaudioguy1/" },
+    { "label": "Facebook", "url": "https://www.facebook.com/profile.php?id=61595033035430" }
+  ],
+
   "copyright_holder": "Bad Audio Guy",
 
   "favicon": "assets/favicon.svg",

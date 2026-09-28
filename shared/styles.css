@@ -544,11 +544,37 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
   letter-spacing: .05em;
 }
 
+/* Social profiles: own row on phones, inline between the footer items on wider screens. */
+.social { flex-basis: 100%; margin-bottom: .6rem; }
+.social ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.social a {
+  display: inline-block;
+  /* comfortable tap height without shifting the row */
+  margin: -.55rem 0;
+  padding: .55rem 0;
+  color: var(--text);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.social a span { color: var(--accent); }
+.social a:hover { color: var(--accent); }
+
 /* ---- Larger screens ---- */
 
 @media (min-width: 40rem) {
   .shell { padding: 0 1.5rem; }
   .strip-domain { display: inline; }
+  .site-footer { align-items: center; }
+  .social { flex-basis: auto; order: 1; margin-bottom: 0; }
+  .site-footer > span:last-child { order: 2; }
   .ctas ul { grid-template-columns: repeat(3, 1fr); }
   .cta-wide {
     display: grid;

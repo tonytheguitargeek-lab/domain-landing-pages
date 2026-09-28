@@ -270,6 +270,21 @@ class Site:
             links.append('<link rel="apple-touch-icon" href="%s%s">' % (root, esc(touch)))
         return "\n".join(links)
 
+    def social_html(self):
+        """Footer row of the brand's own profiles (brand.json "social": [{label, url}])."""
+        items = []
+        for link in self.cfg.get("social", []):
+            url = link.get("url", "")
+            if not url.startswith("https://"):
+                raise BuildError("social link %r must be an https:// URL" % link.get("label"))
+            items.append('        <li><a href="%s" rel="me noopener">%s<span aria-hidden="true"> &#8599;</span>'
+                         '<span class="visually-hidden"> (%s profile)</span></a></li>'
+                         % (esc(url), esc(link["label"]), esc(self.cfg["name"])))
+        if not items:
+            return ""
+        return ('    <nav class="social" aria-label="%s elsewhere">\n      <ul>\n%s\n      </ul>\n    </nav>'
+                % (esc(self.cfg["name"]), "\n".join(items)))
+
     def write_page(self, rel_path, title, description, content, og_type="website", main_class="home"):
         """rel_path is "" for the home page or e.g. "field-notes/triax-connectors/"."""
         depth = rel_path.count("/")
@@ -309,6 +324,7 @@ class Site:
             "content": content,
             "year": str(datetime.date.today().year),
             "copyright_holder": esc(self.cfg.get("copyright_holder", self.cfg["name"])),
+            "social_html": self.social_html(),
         }
         target = self.out / rel_path / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
