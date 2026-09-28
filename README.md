@@ -117,6 +117,22 @@ alt: ...
 sized with width/height, and linked to the full-size file. On phones each step is a thumbnail
 beside its caption; wider screens use a 3-up grid.
 
+### "What's next" callouts
+
+For multi-part project pages, a `roadmap` block renders a highlighted callout with a status
+label; its content is normal Markdown, and a `- ` list inside it becomes numbered milestones:
+
+```
+::: roadmap Part 2 coming soon
+## Part 2: From Prototype to Field Tool
+
+Short status paragraph.
+
+- **Milestone:** what happens in this step.
+- **Next milestone:** ...
+:::
+```
+
 **Prepare every image with `tools/export_web_image.py` before publishing.** It writes a new file
 with no EXIF/GPS metadata, applies rotation, converts to sRGB, and crops and resizes it:
 

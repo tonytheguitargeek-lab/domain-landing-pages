@@ -79,7 +79,10 @@ def theme_css(theme):
 
 # ---- Markdown (small subset: headings, paragraphs, "- " lists, **bold**, *em*, `code`, [links](url)).
 # Paragraphs or list items starting with "TODO:" render as visible "pending" placeholders.
-# A "::: gallery ... :::" block renders a numbered build log (see parse_gallery / Site.gallery_html).
+# Container blocks, each opened by a "::: <type> [label]" line and closed by ":::":
+#   ::: gallery        numbered build log (see parse_gallery / Site.gallery_html)
+#   ::: roadmap Label  "what's next" callout: status label, then normal Markdown; its
+#                      "- " list renders as numbered milestones (see roadmap_html)
 
 def slugify(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
@@ -102,7 +105,7 @@ def todo_html(text, tag):
         tag, md_inline(text[len("TODO:"):].strip()), tag)
 
 
-GALLERY_RE = re.compile(r"^:::[ \t]*gallery[ \t]*\n(.*?)\n:::[ \t]*$", re.M | re.S)
+BLOCK_RE = re.compile(r"^:::[ \t]*(\w+)[ \t]*([^\n]*)\n(.*?)\n:::[ \t]*$", re.M | re.S)
 GALLERY_KEYS = {"image", "alt", "title", "caption", "kind"}
 
 
@@ -141,13 +144,28 @@ def image_size(path):
     raise BuildError("%s: can't read image size (PNG or JPEG only)" % path.name)
 
 
+def roadmap_html(label, inner, indent):
+    status = ""
+    if label.strip():
+        status = '%s  <p class="roadmap-status"><span class="roadmap-dot" aria-hidden="true"></span>%s</p>\n' % (
+            indent, md_inline(label.strip()))
+    return '%s<aside class="roadmap">\n%s%s\n%s</aside>' % (
+        indent, status, md_blocks(inner, indent + "  "), indent)
+
+
 def md_to_html(src, indent="          ", render_gallery=None):
     parts, pos = [], 0
-    for m in GALLERY_RE.finditer(src):
+    for m in BLOCK_RE.finditer(src):
+        kind, label, inner = m.group(1), m.group(2), m.group(3)
         parts.append(md_blocks(src[pos:m.start()], indent))
-        if render_gallery is None:
-            raise BuildError("gallery blocks aren't supported here")
-        parts.append(render_gallery(parse_gallery(m.group(1)), indent))
+        if kind == "gallery":
+            if render_gallery is None:
+                raise BuildError("gallery blocks aren't supported here")
+            parts.append(render_gallery(parse_gallery(inner), indent))
+        elif kind == "roadmap":
+            parts.append(roadmap_html(label, inner, indent))
+        else:
+            raise BuildError("unknown block type ::: %s (known: gallery, roadmap)" % kind)
         pos = m.end()
     parts.append(md_blocks(src[pos:], indent))
     return "\n".join(p for p in parts if p)

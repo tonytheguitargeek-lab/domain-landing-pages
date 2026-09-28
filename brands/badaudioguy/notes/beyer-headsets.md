@@ -114,3 +114,15 @@ The mic-pair readings were taken on the meter's kΩ range (0.196 and 0.186 kΩ) 
 - `1–2` = 186 ohms
 - `3–4` = 57.6 ohms
 - All other combinations open, including shield
+
+::: roadmap Part 2 coming soon
+## Part 2: From Prototype to Field Tool
+
+This build is still in progress. Next up: assemble the Rev A3 boards, program and test them with real headsets, then use what we learn to shrink the enclosure and refine the design into a smaller final version.
+
+The goal isn’t just to make one tester work. It’s to turn the manual multimeter check into a fast, reliable pocket tool.
+
+- **Assembly:** boards arrive, get programmed, go into the enclosure, and get their first live headset tests.
+- **Field validation:** compare PASS / FAIL behavior against known-good multimeter checks and refine the workflow.
+- **Rev B / smaller final version:** reduce the enclosure size, refine the controls, and move toward a smaller pocketable design.
+:::
