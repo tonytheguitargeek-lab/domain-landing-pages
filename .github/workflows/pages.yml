@@ -1,0 +1,52 @@
+# Builds one brand and publishes it to this repo's GitHub Pages site.
+# A repo has exactly one Pages site, so PAGES_BRAND picks which brand it serves.
+# No custom domain is configured here; the site is served at the github.io URL.
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  PAGES_BRAND: badaudioguy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build site
+        run: python3 build.py "$PAGES_BRAND"
+
+      - name: Locate output folder
+        id: site
+        run: |
+          domain=$(python3 -c "import json; print(json.load(open('brands/$PAGES_BRAND/brand.json'))['domain'])")
+          echo "dir=dist/$domain" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ steps.site.outputs.dir }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

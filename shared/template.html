@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+{{robots_meta}}
+<link rel="canonical" href="{{canonical_url}}">
+<meta name="theme-color" content="{{theme_color}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{name}}">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{description}}">
+<meta property="og:url" content="{{canonical_url}}">
+<meta property="og:locale" content="{{og_locale}}">
+{{og_image_meta}}
+<meta name="twitter:card" content="{{twitter_card}}">
+{{icon_links}}
+<style>
+{{theme_css}}
+{{shared_css}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="strip">
+    <span class="strip-status"><span class="led" aria-hidden="true"></span>{{eyebrow}}</span>
+    <span class="strip-domain">{{domain}}</span>
+  </header>
+
+  <main id="main">
+    <section class="hero panel" aria-labelledby="brand-name">
+      <div class="hero-copy">
+        <h1 id="brand-name">{{name}}</h1>
+        <p class="tagline">{{tagline}}</p>
+        <div class="intro">
+{{intro_html}}
+        </div>
+      </div>
+{{hero_art_html}}
+    </section>
+
+    <nav class="ctas" aria-labelledby="cta-heading">
+      <h2 id="cta-heading" class="visually-hidden">{{cta_heading}}</h2>
+      <ul>
+{{ctas_html}}
+      </ul>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span>&copy; {{year}} {{copyright_holder}}</span>
+    <span>{{domain}}</span>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "domain": "example.com",
+  "canonical_host": "example.com",
+  "lang": "en",
+  "indexable": false,
+
+  "name": "Example Brand",
+  "title": "Example Brand — TODO one-line title for search results",
+  "description": "TODO ~150-character description used for search results and link previews.",
+
+  "eyebrow": "TODO small status line",
+  "tagline": "TODO one-sentence tagline.",
+  "intro": [
+    "TODO first intro paragraph."
+  ],
+
+  "hero_art": {
+    "src": "assets/hero.svg",
+    "caption_left": "",
+    "caption_right": ""
+  },
+
+  "cta_heading": "Where to next",
+  "ctas": [
+    { "label": "Projects", "blurb": "TODO", "href": "", "status": "Coming soon" },
+    { "label": "Contact", "blurb": "TODO", "href": "mailto:TODO@example.com", "status": "" },
+    { "label": "Coming Soon", "blurb": "TODO", "href": "", "status": "Soon" }
+  ],
+
+  "copyright_holder": "Example Brand",
+
+  "favicon": "assets/favicon.svg",
+  "apple_touch_icon": "assets/apple-touch-icon.png",
+  "og_image": "assets/og-image.png",
+
+  "theme": {
+    "bg": "#0e0f0f",
+    "surface": "#161819",
+    "screen": "#0a0c0b",
+    "line": "#2a2d2e",
+    "text": "#ebe8e1",
+    "muted": "#a3a19a",
+    "accent": "#4fb3ff",
+    "alert": "#ff4d3d",
+    "signal": "#5bd67a"
+  }
+}

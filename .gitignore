@@ -1,0 +1,14 @@
+# Generated output (rebuilt locally and by the Pages workflow)
+dist/
+
+# Local editor / tool state
+.claude/
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

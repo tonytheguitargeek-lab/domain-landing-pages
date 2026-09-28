@@ -1,0 +1,63 @@
+{
+  "domain": "badaudioguy.com",
+  "canonical_host": "badaudioguy.com",
+  "lang": "en",
+  "indexable": true,
+
+  "name": "Bad Audio Guy",
+  "title": "Bad Audio Guy — Broadcast audio, field tools & troubleshooting",
+  "description": "Broadcast audio, field tools, and other things that probably need troubleshooting. A home for broadcast-audio projects, field fixes, and future test-tool builds.",
+
+  "eyebrow": "CH 1 · Signal present · Mostly",
+  "tagline": "Broadcast audio, field tools, and other things that probably need troubleshooting.",
+  "intro": [
+    "This is home base for broadcast-audio projects, field tools, troubleshooting ideas, and whatever ends up on the bench next — the stuff that comes out of long days in trucks, booths, and equipment rooms.",
+    "Some of it is finished. Some of it is a working theory. All of it started with something that didn't sound right."
+  ],
+
+  "hero_art": {
+    "src": "assets/scope.svg",
+    "caption_left": "CH1 · 1 kHz",
+    "caption_right": "+4 dBFS · CLIP"
+  },
+
+  "cta_heading": "Where to next",
+  "ctas": [
+    {
+      "label": "Projects",
+      "blurb": "Builds, fixes, and field notes from the truck.",
+      "href": "",
+      "status": "Stocking the shelf"
+    },
+    {
+      "label": "Contact",
+      "blurb": "Questions, war stories, or a signal that won't behave.",
+      "href": "",
+      "status": "Address TBD"
+    },
+    {
+      "label": "Coming Soon",
+      "blurb": "Broadcast test tools currently living on the bench.",
+      "href": "",
+      "status": "On the bench"
+    }
+  ],
+
+  "copyright_holder": "Bad Audio Guy",
+
+  "favicon": "assets/favicon.svg",
+  "apple_touch_icon": "assets/apple-touch-icon.png",
+  "og_image": "assets/og-image.png",
+
+  "theme": {
+    "bg": "#0e0f0f",
+    "surface": "#161819",
+    "screen": "#0a0c0b",
+    "line": "#2a2d2e",
+    "text": "#ebe8e1",
+    "muted": "#a3a19a",
+    "accent": "#ffb000",
+    "alert": "#ff4d3d",
+    "signal": "#5bd67a"
+  }
+}
