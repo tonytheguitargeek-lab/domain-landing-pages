@@ -1,0 +1,24 @@
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="../../">{{name}}</a></li>
+        <li><a href="../">{{notes_title}}</a></li>
+        <li aria-current="page">{{note_title}}</li>
+      </ol>
+    </nav>
+
+    <article class="note">
+      <header class="page-head panel">
+        <p class="kicker"><a href="../#{{category_slug}}">{{category_name}}</a></p>
+        <h1>{{note_title}}</h1>
+        <p class="lede">{{note_summary}}</p>
+      </header>
+
+      <div class="note-body">
+{{resource_html}}
+        <div class="prose">
+{{body_html}}
+        </div>
+      </div>
+
+      <p class="back"><a href="../">&larr; All {{notes_title_lower}}</a></p>
+    </article>

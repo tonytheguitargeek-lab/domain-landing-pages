@@ -7,9 +7,12 @@ No dependencies: Python 3 standard library only. The output is plain HTML, has n
 inlines all CSS (one request per page plus favicon).
 
 ```
-shared/template.html          page markup with {{placeholders}}
+shared/layout.html            page shell (head, SEO tags, header, footer) with {{placeholders}}
+shared/home.html              home page body
+shared/notes-index.html       Field Notes index body
+shared/note.html              single note body
 shared/styles.css             shared styles; brand colors come in as CSS custom properties
-brands/<slug>/                brand.json + assets/ (folders starting with "_" are skipped)
+brands/<slug>/                brand.json + assets/ + optional notes/*.md ("_" folders are skipped)
 dist/<domain>/                generated, deployable output (git-ignored; don't edit by hand)
 .github/workflows/pages.yml   builds one brand and publishes it to GitHub Pages
 ```
@@ -29,10 +32,12 @@ Output goes to `dist/badaudioguy.com/`:
 
 ```
 dist/badaudioguy.com/
-├── index.html      page with CSS and hero SVG inlined
+├── index.html                          home page (CSS and hero SVG inlined)
+├── field-notes/index.html              Field Notes index, grouped by category
+├── field-notes/<note-slug>/index.html  one page per note
 ├── robots.txt
-├── sitemap.xml
-└── assets/         favicon and other brand assets, copied as-is
+├── sitemap.xml                         every page above
+└── assets/                             favicon and other brand assets, copied as-is
 ```
 
 The build lists missing assets and any copy still marked `TODO`.
@@ -53,6 +58,39 @@ open `http://<this-mac's-LAN-IP>:8080` (`ipconfig getifaddr en1` on this iMac; `
 3. Replace `assets/hero.svg` and `assets/favicon.svg`. Add `og-image.png` (1200×630),
    `apple-touch-icon.png` (180×180), and `favicon.ico` if you want them.
 4. `python3 build.py <slug>` and preview `dist/<domain>/`.
+
+## Field Notes
+
+A brand gets a Field Notes section when its `brand.json` has a `notes` block (see
+`brands/badaudioguy/brand.json`): URL path, title, description, intro, home-page link text,
+and the list of categories. Each Markdown file in `brands/<slug>/notes/` becomes
+`/<path>/<file-name>/`. The index lists notes by category, and empty categories show
+"Nothing filed here yet."
+
+A note starts with front matter:
+
+```
+---
+title: Triax Connectors
+category: cables-connectors
+summary: One or two sentences; used on the index and as the meta description.
+video_title: Triax Connectors
+video_url: https://www.youtube.com/watch?v=...
+creator: n392ep
+series: Truck Guy Training with Sunny D
+published: May 15, 2022
+covers:
+  - Replacing triax connectors
+---
+```
+
+`title`, `category` (a category slug from brand.json), and `summary` are required. The rest are
+optional and fill the "Source" box. The file name becomes the URL slug unless `slug:` is set.
+
+The body supports `## headings`, paragraphs, `- lists`, `**bold**`, `*italic*`, `` `code` ``,
+and `[links](url)`. A paragraph or list item starting with `TODO:` shows on the page as a
+"Pending" placeholder, and the build lists every one, so unfinished notes stay useful and
+easy to track. Videos are linked, never embedded (no third-party requests).
 
 ## GitHub Pages deployment
 

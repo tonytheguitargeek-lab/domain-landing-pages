@@ -43,6 +43,23 @@
     }
   ],
 
+  "notes": {
+    "dir": "notes",
+    "path": "field-notes",
+    "title": "Field Notes",
+    "description": "Recommended broadcast-audio resources and practical notes from the field: cables and connectors, headsets and intercom, and test tools.",
+    "intro": "Recommended resources and practical notes from the field. Filed slowly, kept useful.",
+    "home_link": {
+      "label": "Field Notes",
+      "blurb": "Recommended resources and notes from the truck."
+    },
+    "categories": [
+      { "slug": "cables-connectors", "name": "Cables & Connectors", "blurb": "Camera cable, audio cable, and the connectors on the ends." },
+      { "slug": "headsets-intercom", "name": "Headsets & Intercom", "blurb": "Headsets, intercom, and keeping comms working." },
+      { "slug": "test-tools", "name": "Test Tools", "blurb": "Meters, testers, and the gear that finds the problem." }
+    ]
+  },
+
   "copyright_holder": "Bad Audio Guy",
 
   "favicon": "assets/favicon.svg",
