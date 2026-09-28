@@ -79,6 +79,7 @@ def theme_css(theme):
 
 # ---- Markdown (small subset: headings, paragraphs, "- " lists, **bold**, *em*, `code`, [links](url)).
 # Paragraphs or list items starting with "TODO:" render as visible "pending" placeholders.
+# A "::: gallery ... :::" block renders a numbered build log (see parse_gallery / Site.gallery_html).
 
 def slugify(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
@@ -101,8 +102,61 @@ def todo_html(text, tag):
         tag, md_inline(text[len("TODO:"):].strip()), tag)
 
 
-def md_to_html(src, indent="          "):
+GALLERY_RE = re.compile(r"^:::[ \t]*gallery[ \t]*\n(.*?)\n:::[ \t]*$", re.M | re.S)
+GALLERY_KEYS = {"image", "alt", "title", "caption", "kind"}
+
+
+def parse_gallery(text):
+    """A gallery block holds items separated by blank lines; each item is `key: value` lines."""
+    items = []
+    for chunk in re.split(r"\n\s*\n", text.strip()):
+        item = {}
+        for line in chunk.strip().splitlines():
+            kv = re.match(r"\s*(\w+):\s*(.*)", line)
+            if not kv or kv.group(1) not in GALLERY_KEYS:
+                raise BuildError("gallery: can't parse line %r (keys: %s)" % (line, ", ".join(sorted(GALLERY_KEYS))))
+            item[kv.group(1)] = kv.group(2).strip()
+        missing = [k for k in ("image", "alt", "title") if not item.get(k)]
+        if missing:
+            raise BuildError("gallery item %r missing %s" % (item.get("image", "?"), ", ".join(missing)))
+        items.append(item)
+    return items
+
+
+def image_size(path):
+    """(width, height) of a PNG or JPEG, standard library only."""
+    data = path.read_bytes()
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    if data[:2] == b"\xff\xd8":
+        i = 2
+        while i < len(data) - 9:
+            if data[i] != 0xFF:
+                i += 1
+                continue
+            marker = data[i + 1]
+            if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+                return int.from_bytes(data[i + 7:i + 9], "big"), int.from_bytes(data[i + 5:i + 7], "big")
+            i += 2 + int.from_bytes(data[i + 2:i + 4], "big")
+    raise BuildError("%s: can't read image size (PNG or JPEG only)" % path.name)
+
+
+def md_to_html(src, indent="          ", render_gallery=None):
+    parts, pos = [], 0
+    for m in GALLERY_RE.finditer(src):
+        parts.append(md_blocks(src[pos:m.start()], indent))
+        if render_gallery is None:
+            raise BuildError("gallery blocks aren't supported here")
+        parts.append(render_gallery(parse_gallery(m.group(1)), indent))
+        pos = m.end()
+    parts.append(md_blocks(src[pos:], indent))
+    return "\n".join(p for p in parts if p)
+
+
+def md_blocks(src, indent):
     blocks = []
+    if not src.strip():
+        return ""
     for block in re.split(r"\n\s*\n", src.strip()):
         lines = [l.rstrip() for l in block.strip().splitlines()]
         heading = re.match(r"(#{1,4})\s+(.+)", lines[0])
@@ -345,6 +399,30 @@ class Site:
                 '          <dl>\n%s\n          </dl>%s\n'
                 '        </aside>') % ("\n".join(rows), link)
 
+    def gallery_html(self, items, indent, root):
+        """Chronological build log: numbered figures, each linking to its full-size image."""
+        steps = []
+        for i, item in enumerate(items, 1):
+            rel = item["image"].lstrip("/")
+            path = self.dir / "assets" / rel
+            if not path.is_file():
+                raise BuildError("gallery image assets/%s not found" % rel)
+            w, h = image_size(path)
+            kind = item.get("kind") or ("photo" if path.suffix.lower() in (".jpg", ".jpeg") else "render")
+            src = "%sassets/%s" % (root, esc(rel))
+            caption = '<span class="build-text">%s</span>' % md_inline(item["caption"]) if item.get("caption") else ""
+            steps.append(
+                '%s  <li class="build-step is-%s">\n'
+                '%s    <figure>\n'
+                '%s      <a class="build-media" href="%s"><img src="%s" alt="%s" width="%d" height="%d"'
+                ' loading="lazy" decoding="async"><span class="visually-hidden"> (open full-size image)</span></a>\n'
+                '%s      <figcaption><span class="build-meta"><span class="build-num">%02d</span> &middot; %s</span>'
+                '<span class="build-title">%s</span>%s</figcaption>\n'
+                '%s    </figure>\n'
+                '%s  </li>' % (indent, esc(kind), indent, indent, src, src, esc(item["alt"]), w, h,
+                               indent, i, esc(kind.capitalize()), md_inline(item["title"]), caption, indent, indent))
+        return '%s<ol class="build-log">\n%s\n%s</ol>' % (indent, "\n".join(steps), indent)
+
     def build_notes(self, notes_cfg, cats, notes):
         path = notes_cfg["path"]
         title = notes_cfg["title"]
@@ -361,7 +439,7 @@ class Site:
                 "category_slug": esc(cat["slug"]),
                 "category_name": esc(cat["name"]),
                 "resource_html": self.resource_html(meta),
-                "body_html": md_to_html(body),
+                "body_html": md_to_html(body, render_gallery=lambda items, ind: self.gallery_html(items, ind, "../../")),
             })
             self.write_page("%s/%s/" % (path, meta["slug"]), "%s — %s — %s" % (meta["title"], title, name),
                             meta["summary"], content, og_type="article", main_class="page")

@@ -92,6 +92,43 @@ and `[links](url)`. A paragraph or list item starting with `TODO:` shows on the 
 "Pending" placeholder, and the build lists every one, so unfinished notes stay useful and
 easy to track. Videos are linked, never embedded (no third-party requests).
 
+### Build-log galleries
+
+A note can include a chronological gallery. Put images in `brands/<slug>/assets/...` and add:
+
+```
+::: gallery
+image: projects/headset-tester/01-rev-a3-pcb-render.png
+kind: render
+title: PCB design
+caption: Rev A3 board design, prepared for fabrication.
+alt: Describe what the image shows for screen readers and search.
+
+image: projects/headset-tester/03-xlr-fit-test-plate.jpg
+kind: photo
+title: Connector fit test
+caption: ...
+alt: ...
+:::
+```
+
+`image` (relative to the brand's `assets/`), `alt`, and `title` are required; `caption` and `kind`
+(`render` or `photo`) are optional. Items render as a numbered list, with each image lazy-loaded,
+sized with width/height, and linked to the full-size file. On phones each step is a thumbnail
+beside its caption; wider screens use a 3-up grid.
+
+**Prepare every image with `tools/export_web_image.py` before publishing.** It writes a new file
+with no EXIF/GPS metadata, applies rotation, converts to sRGB, and crops and resizes it:
+
+```
+python3 tools/export_web_image.py ~/Downloads/IMG_1234.jpg \
+  brands/badaudioguy/assets/projects/<project>/04-descriptive-name.jpg \
+  --crop LEFT,TOP,RIGHT,BOTTOM --max 1300 --quality 72
+```
+
+It needs Pillow (local only; the site build itself stays standard-library). Check each photo for
+reflections, screens, labels, and addresses first, and crop them out.
+
 ## GitHub Pages deployment
 
 `dist/` is not committed. On every push to `main` (or a manual run from the Actions tab),

@@ -28,6 +28,48 @@ For the camera headsets I’ve checked, a known-good mic pair reads approximatel
 
 That gives a dedicated tester enough information to make a quick PASS / FAIL decision without dragging out a meter and remembering pin combinations.
 
+## Building the Pocket Tester
+
+The first prototype, from board design to a printed case in hand. Select any image to open the full-size version.
+
+::: gallery
+image: projects/headset-tester/01-rev-a3-pcb-render.png
+kind: render
+title: PCB design
+caption: Rev A3 board design, prepared for fabrication.
+alt: KiCad 3D render of the green Rev A3 headset tester circuit board, with the microcontroller in the middle, three LED positions labelled MIC, EAR1 and EAR2, and a row of pads for the 5-pin XLR, programming and power.
+
+image: projects/headset-tester/02-enclosure-exploded-render.png
+kind: render
+title: Enclosure design
+caption: Approved enclosure concept, exploded to show the PCB, XLR connector and cover.
+alt: Exploded 3D render of the black prototype enclosure, with the 5-pin XLR connector at one end, the green circuit board beneath the case, and the bottom cover separated below.
+
+image: projects/headset-tester/03-xlr-fit-test-plate.jpg
+kind: photo
+title: Connector fit test
+caption: A small printed test plate was used to get the 5-pin XLR cut-out right before committing to the full case.
+alt: Black 3D-printed test plate held between two fingers, with a female 5-pin XLR panel connector mounted in its cut-out.
+
+image: projects/headset-tester/04-first-wired-case.jpg
+kind: photo
+title: First wired case
+caption: Early printed enclosure with the XLR connector and test button installed.
+alt: Open black 3D-printed case held in one hand, with the XLR connector fitted at the top end and a metal push button wired in with red and black leads.
+
+image: projects/headset-tester/05-closed-prototype.jpg
+kind: photo
+title: Closed prototype
+caption: Prototype case closed up, with the test button and three LED positions visible.
+alt: Top of the closed black 3D-printed prototype case, showing a round stainless test button with three small LED holes above it.
+
+image: projects/headset-tester/06-in-hand.jpg
+kind: photo
+title: In hand
+caption: The enclosure was sized around one-handed field use.
+alt: Hand holding the closed prototype case, with the thumb resting on the test button.
+:::
+
 ## Field notes
 
 My own observations from headset troubleshooting in the field.
