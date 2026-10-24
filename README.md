@@ -172,10 +172,14 @@ Current Pages settings (**Settings → Pages**):
 - **Enforce HTTPS:** on. GitHub's certificate covers `badaudioguy.com` and `www.badaudioguy.com`
   and renews automatically.
 
-DNS (Google Cloud DNS; leave as is):
+DNS (managed at Squarespace Domains, the registrar; leave as is):
 - `badaudioguy.com` A records → GitHub Pages IPs `185.199.108.153`, `.109.153`, `.110.153`, `.111.153`.
 - `www.badaudioguy.com` CNAME → `tonytheguitargeek-lab.github.io`.
 - MX/SPF for Mailgun are unrelated to the site and must not be touched.
+- TXT `_github-pages-challenge-tonytheguitargeek-lab` → GitHub's domain-verification code.
+  `badaudioguy.com` is a **verified domain** on the `tonytheguitargeek-lab` account (github.com →
+  Settings → Pages), so no other GitHub account can publish a Pages site on it. Leave this record
+  in place; GitHub re-checks it periodically.
 
 If HTTPS breaks (browser certificate warning, or "Enforce HTTPS" greyed out with "certificate
 does not exist yet"), remove the custom domain in Settings → Pages, save, re-add
