@@ -1,6 +1,7 @@
 {
   "domain": "badaudioguy.com",
   "canonical_host": "badaudioguy.com",
+  "cloudflare_analytics_token": "0d8a9a3302be428fbf5dbda78e81f9b5",
   "lang": "en",
   "indexable": true,
 

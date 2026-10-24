@@ -242,6 +242,19 @@ class Site:
         self.urls = []
         self.og_image = self._og_image()
 
+    def analytics_html(self):
+        # Cloudflare Web Analytics: the README's one allowed script / third-party request.
+        # Only brands with "cloudflare_analytics_token" in brand.json get it.
+        token = self.cfg.get("cloudflare_analytics_token")
+        if not token:
+            return ""
+        if not re.fullmatch(r"[0-9a-f]{32}", token):
+            raise BuildError("cloudflare_analytics_token should be 32 hex characters")
+        return ("<!-- Cloudflare Web Analytics --><script type='module' "
+                "src='https://static.cloudflareinsights.com/beacon.min.js' "
+                "data-cf-beacon='{\"token\": \"%s\"}'></script>"
+                "<!-- End Cloudflare Web Analytics -->" % token)
+
     def _og_image(self):
         """Absolute URL + size of the link-preview image. Previews need an absolute URL, so it
         uses ASSET_BASE_URL when set (the Pages workflow passes the site's live base URL, so
@@ -325,6 +338,7 @@ class Site:
             "year": str(datetime.date.today().year),
             "copyright_holder": esc(self.cfg.get("copyright_holder", self.cfg["name"])),
             "social_html": self.social_html(),
+            "analytics_html": self.analytics_html(),
         }
         target = self.out / rel_path / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)

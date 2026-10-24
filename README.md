@@ -3,8 +3,18 @@
 One shared template, many domains. Each brand is a folder with a `brand.json` and an
 `assets/` folder; `build.py` renders a self-contained static site per domain into `dist/<domain>/`.
 
-No dependencies: Python 3 standard library only. The output is plain HTML, has no JavaScript, and
-inlines all CSS (one request per page plus favicon).
+No dependencies: Python 3 standard library only. The output is plain HTML with all CSS inlined
+(one request per page plus favicon), and loads no JavaScript or third-party resources, with one
+exception:
+
+> **Analytics exception.** A brand whose `brand.json` sets `cloudflare_analytics_token` gets the
+> Cloudflare Web Analytics beacon in every page's `<head>`: one deferred script from
+> `static.cloudflareinsights.com` that reports cookie-free page-view counts to Cloudflare. It is
+> the only script and the only third-party request allowed; it is added in one place
+> (`Site.analytics_html()` in `build.py`, via `{{analytics_html}}` in `shared/layout.html`), and
+> the pages work the same if it is blocked. Currently enabled for **badaudioguy.com** only.
+> Dashboard: dash.cloudflare.com → Analytics & Logs → Web Analytics → badaudioguy.com.
+> Don't add other trackers, embeds, web fonts, or widgets without revisiting this rule.
 
 ```
 shared/layout.html            page shell (head, SEO tags, header, footer) with {{placeholders}}
@@ -90,7 +100,8 @@ optional and fill the "Source" box. The file name becomes the URL slug unless `s
 The body supports `## headings`, paragraphs, `- lists`, `**bold**`, `*italic*`, `` `code` ``,
 and `[links](url)`. A paragraph or list item starting with `TODO:` shows on the page as a
 "Pending" placeholder, and the build lists every one, so unfinished notes stay useful and
-easy to track. Videos are linked, never embedded (no third-party requests).
+easy to track. Videos are linked, never embedded (no third-party requests beyond the analytics
+exception above).
 
 ### Build-log galleries
 
@@ -195,6 +206,8 @@ the build. `favicon.ico` in `assets/` is also copied to the site root.
 
 - `canonical_host`: `example.com` or `www.example.com`. Canonical, OG, and sitemap URLs use it.
   Redirect the other host to it at the host or CDN.
+- `cloudflare_analytics_token`: optional; the 32-hex-character token from the Cloudflare Web
+  Analytics snippet. Omit it to build the brand with no script at all (see the analytics exception).
 - `indexable: false` adds `noindex` and a disallow-all `robots.txt` (useful for staging).
 - CTA with an empty `href`: renders as a non-clickable "pending" card that shows `status`.
 - An SVG `hero_art` is inlined so theme colors can style it (`.scope-*` classes in styles.css).
