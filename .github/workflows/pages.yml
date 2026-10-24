@@ -1,6 +1,6 @@
 # Builds one brand and publishes it to this repo's GitHub Pages site.
 # A repo has exactly one Pages site, so PAGES_BRAND picks which brand it serves.
-# No custom domain is configured here; the site is served at the github.io URL.
+# The custom domain (badaudioguy.com) and Enforce HTTPS are set in Settings → Pages, not here.
 name: Deploy GitHub Pages
 
 on:

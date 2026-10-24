@@ -18,8 +18,8 @@ dist/<domain>/                generated, deployable output (git-ignored; don't e
 ```
 
 > **DNS and email stay untouched.** Do not change DNS, registrar, MX/SPF/DKIM/DMARC, Mailgun,
-> forwarding, or Squarespace settings, and do not add a custom domain or `CNAME` file, until that
-> step is explicitly approved. Until then the site lives only at its temporary `github.io` URL.
+> forwarding, or Squarespace settings without explicit approval. The live site is
+> https://badaudioguy.com, served by GitHub Pages (see "GitHub Pages deployment" below).
 
 ## Build Bad Audio Guy
 
@@ -152,10 +152,23 @@ reflections, screens, labels, and addresses first, and crop them out.
 
 1. runs `python3 build.py $PAGES_BRAND` (currently `badaudioguy`),
 2. uploads `dist/<that brand's domain>/` as the Pages artifact,
-3. deploys it to `https://<github-user>.github.io/<repo>/`.
+3. deploys it to GitHub Pages, served at **https://badaudioguy.com**.
 
-One-time setup: in the repo's **Settings → Pages**, set **Source** to **GitHub Actions**.
-Leave **Custom domain** empty.
+Current Pages settings (**Settings → Pages**):
+- **Source:** GitHub Actions.
+- **Custom domain:** `badaudioguy.com`. It is set in Settings, not with a `CNAME` file (Actions
+  deployments ignore `CNAME` files). `www.badaudioguy.com` redirects to the apex.
+- **Enforce HTTPS:** on. GitHub's certificate covers `badaudioguy.com` and `www.badaudioguy.com`
+  and renews automatically.
+
+DNS (Google Cloud DNS; leave as is):
+- `badaudioguy.com` A records → GitHub Pages IPs `185.199.108.153`, `.109.153`, `.110.153`, `.111.153`.
+- `www.badaudioguy.com` CNAME → `tonytheguitargeek-lab.github.io`.
+- MX/SPF for Mailgun are unrelated to the site and must not be touched.
+
+If HTTPS breaks (browser certificate warning, or "Enforce HTTPS" greyed out with "certificate
+does not exist yet"), remove the custom domain in Settings → Pages, save, re-add
+`badaudioguy.com`, wait for the certificate, then tick **Enforce HTTPS** again. DNS needs no change.
 
 A repository has exactly one Pages site, so this repo publishes one brand. When a second brand
 needs hosting, either give it its own repo (copy this one and change `PAGES_BRAND`) or move to a
@@ -163,11 +176,11 @@ host that serves several sites from one repo. That choice can wait until it's ne
 
 Notes:
 - The link-preview image (`og:image`) must be an absolute URL. The workflow passes Pages' own
-  base URL as `ASSET_BASE_URL`, so previews work on the github.io address now and switch to the
-  custom domain automatically once one is connected. Local builds fall back to the canonical host.
-- Asset paths are relative, so the page works under the `/<repo>/` subpath of the preview URL.
-- Canonical, Open Graph, and sitemap URLs already point at the real domain from `brand.json`;
-  that's intended, so search engines credit the real domain rather than the preview URL.
+  base URL as `ASSET_BASE_URL`, which is the custom domain now that one is connected. Local
+  builds fall back to the canonical host.
+- Asset paths are relative, so the page also works under a `/<repo>/` subpath if the custom
+  domain is ever removed.
+- Canonical, Open Graph, and sitemap URLs come from `brand.json` (`canonical_host`).
 - Pages from a **private** repo require a paid GitHub plan, and the published site is still
   publicly reachable.
 
