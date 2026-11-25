@@ -1,0 +1,26 @@
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="../">{{name}}</a></li>
+{{projects_crumb}}        <li aria-current="page">{{short_title}}</li>
+      </ol>
+    </nav>
+
+    <article class="article">
+      <header class="article-head panel">
+        <div class="article-head-copy">
+          <p class="kicker">{{kicker}}</p>
+          <h1>{{title}}</h1>
+          <p class="lede">{{dek}}</p>
+          <p class="article-meta"><time datetime="{{date_iso}}">{{date_human}}</time> &middot; {{author}}</p>
+        </div>
+        <figure class="article-art">
+          <img src="{{hero_src}}" alt="{{hero_alt}}" width="{{hero_w}}" height="{{hero_h}}" decoding="async" fetchpriority="high">
+        </figure>
+      </header>
+
+      <div class="prose article-body">
+{{body_html}}
+      </div>
+
+{{related_html}}
+    </article>

@@ -530,6 +530,121 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
 .back a { display: inline-block; padding: .5rem 0; text-decoration: none; }
 .back a:hover { text-decoration: underline; }
 
+/* Wide gallery variant ("::: gallery wide"): one screenshot per row at its natural shape. */
+.build-log.is-wide { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.build-log.is-wide .build-step figure { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+.build-log.is-wide .build-media { aspect-ratio: auto; padding: .4rem; }
+/* width:100% + the img's width/height attributes reserve space before load; tall shots are capped and centred */
+.build-log.is-wide .build-media img { width: 100%; height: auto; max-height: 34rem; object-fit: contain; }
+
+/* ---- Projects index ---- */
+
+.project-list { display: grid; gap: .9rem; margin: 0; padding: 0; list-style: none; }
+.project-card {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  height: 100%;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.project-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.project-art {
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--screen);
+}
+.project-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.project-copy { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.project-title { font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+.project-card .cta-status { margin-top: .3rem; padding-top: 0; color: var(--accent); }
+
+/* ---- Featured article (home page) ---- */
+
+.feature {
+  display: grid;
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--signal) 30%, var(--line));
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.feature:hover { border-color: var(--accent); transform: translateY(-2px); }
+.feature:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.feature-art { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 10px rgb(0 0 0 / .5)); }
+.feature-copy { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+.feature-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--signal);
+  font: 600 .68rem/1.3 var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.feature-dot { width: .45rem; height: .45rem; border-radius: 50%; background: var(--signal); box-shadow: 0 0 .4rem var(--signal); }
+.feature-title { font-size: 1.35rem; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+.feature-text { color: var(--muted); font-size: .95rem; line-height: 1.45; }
+.feature .cta-status { margin-top: .35rem; padding-top: 0; color: var(--accent); }
+
+/* ---- Article pages (root-level project stories) ---- */
+
+.article { display: grid; gap: 1rem; }
+.article-head { display: grid; gap: 1.5rem; padding: 2rem 1.25rem 1.75rem; }
+.article-head .kicker { color: var(--signal); }
+.article-head h1 {
+  margin: 0 0 .9rem;
+  font-size: clamp(1.95rem, 7.2vw, 3.3rem);
+  line-height: 1.04;
+  letter-spacing: -.03em;
+}
+.article-head .lede { max-width: 38rem; margin: 0; color: var(--muted); font-size: 1.1rem; }
+.article-meta {
+  margin: 1.1rem 0 0;
+  color: var(--muted);
+  font: 500 .72rem/1.4 var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.article-art { width: min(100%, 20rem); margin: 0 auto; }
+.article-art img { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 22px rgb(0 0 0 / .55)); }
+.article-body, .related { width: 100%; max-width: 50rem; margin: 0 auto; }
+.related h2 {
+  margin: .5rem 0 .6rem;
+  color: var(--muted);
+  font: 600 .72rem/1.3 var(--font-mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.related ul { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.related a {
+  display: block;
+  padding: .85rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+.related a span { color: var(--accent); }
+.related a:hover { border-color: var(--accent); }
+
 /* ---- Footer ---- */
 
 .site-footer {
@@ -585,6 +700,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
   .cta-wide .cta-label { margin: 0; }
   .cta-wide .cta-status { margin: 0; padding: 0; }
   .page-head { padding: 2.5rem 2.5rem 2.25rem; }
+  .feature { grid-template-columns: 6.5rem minmax(0, 1fr); gap: 1.4rem; padding: 1.1rem 1.5rem; }
+  .related ul { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+  .project-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-card { grid-template-columns: 8rem minmax(0, 1fr); gap: 1.25rem; padding: 1.25rem; }
   .build-log { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
   .build-step figure { grid-template-columns: minmax(0, 1fr); align-content: start; gap: .7rem; }
   .prose { padding: 2rem 2.5rem; }
@@ -604,6 +723,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
   .hero-art svg { aspect-ratio: 16 / 9; }
   .hero-art figcaption { margin-top: .6rem; }
   main.page { padding-top: 2rem; }
+  .article-head { grid-template-columns: minmax(0, 1fr) 19rem; align-items: center; gap: 2.5rem; padding: 3rem; }
+  .article-art { width: 100%; }
   .note-body { grid-template-columns: minmax(0, 1fr) 18rem; align-items: start; }
   .note-body .resource { grid-column: 2; grid-row: 1; position: sticky; top: 1.5rem; }
   .note-body .prose { grid-column: 1; grid-row: 1; }
@@ -612,6 +733,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-
 
 @media (prefers-reduced-motion: reduce) {
   .led { animation: none; }
-  .cta, .note-card, .build-media { transition: none; }
+  .cta, .note-card, .build-media, .feature, .project-card { transition: none; }
+  .feature:hover, .project-card:hover { transform: none; }
   a.cta:hover { transform: none; }
 }

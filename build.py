@@ -26,6 +26,7 @@ DIST = ROOT / "dist"
 
 REQUIRED = ["domain", "name", "title", "description", "tagline"]
 NOTE_REQUIRED = ["title", "category", "summary"]
+ARTICLE_REQUIRED = ["title", "summary", "date", "hero_image", "hero_alt"]
 DEFAULT_THEME = {
     "bg": "#0e0f0f",
     "surface": "#161819",
@@ -128,7 +129,7 @@ def parse_gallery(text):
 
 
 def image_size(path):
-    """(width, height) of a PNG or JPEG, standard library only."""
+    """(width, height) of a PNG, JPEG or WebP, standard library only."""
     data = path.read_bytes()
     if data[:8] == b"\x89PNG\r\n\x1a\n":
         return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
@@ -142,7 +143,17 @@ def image_size(path):
             if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
                 return int.from_bytes(data[i + 7:i + 9], "big"), int.from_bytes(data[i + 5:i + 7], "big")
             i += 2 + int.from_bytes(data[i + 2:i + 4], "big")
-    raise BuildError("%s: can't read image size (PNG or JPEG only)" % path.name)
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        chunk = data[12:16]
+        if chunk == b"VP8X":  # extended (alpha, etc.): 24-bit little-endian width-1 / height-1
+            return int.from_bytes(data[24:27], "little") + 1, int.from_bytes(data[27:30], "little") + 1
+        if chunk == b"VP8L":  # lossless: 14-bit width-1 / height-1 packed after a 0x2f signature byte
+            bits = int.from_bytes(data[21:25], "little")
+            return (bits & 0x3FFF) + 1, ((bits >> 14) & 0x3FFF) + 1
+        if chunk == b"VP8 ":  # lossy: 14-bit sizes after the frame start code
+            return (int.from_bytes(data[26:28], "little") & 0x3FFF,
+                    int.from_bytes(data[28:30], "little") & 0x3FFF)
+    raise BuildError("%s: can't read image size (PNG, JPEG or WebP only)" % path.name)
 
 
 def roadmap_html(label, inner, indent):
@@ -162,7 +173,7 @@ def md_to_html(src, indent="          ", render_gallery=None):
         if kind == "gallery":
             if render_gallery is None:
                 raise BuildError("gallery blocks aren't supported here")
-            parts.append(render_gallery(parse_gallery(inner), indent))
+            parts.append(render_gallery(parse_gallery(inner), indent, label.strip()))
         elif kind == "roadmap":
             parts.append(roadmap_html(label, inner, indent))
         else:
@@ -196,6 +207,11 @@ def md_blocks(src, indent):
             text = " ".join(l.strip() for l in lines)
             blocks.append(todo_html(text, "p") if text.startswith("TODO:") else "<p>%s</p>" % md_inline(text))
     return "\n".join(indent + b for b in blocks)
+
+
+def human_date(iso, short=False):
+    d = datetime.date.fromisoformat(iso)
+    return "%s %d, %d" % (d.strftime("%b" if short else "%B"), d.day, d.year)
 
 
 def parse_note(path):
@@ -246,7 +262,7 @@ class Site:
         # Cloudflare Web Analytics: the README's one allowed script / third-party request.
         # Only brands with "cloudflare_analytics_token" in brand.json get it.
         token = self.cfg.get("cloudflare_analytics_token")
-        if not token:
+        if not token or os.environ.get("NO_ANALYTICS"):  # NO_ANALYTICS=1 for local previews
             return ""
         if not re.fullmatch(r"[0-9a-f]{32}", token):
             raise BuildError("cloudflare_analytics_token should be 32 hex characters")
@@ -264,11 +280,15 @@ class Site:
         if not (og and (self.dir / og).is_file()):
             self.warn("og_image missing (%s) — 1200x630 PNG/JPG for link previews" % og)
             return None
+        return self.og_for(og, "%s: %s" % (self.cfg["name"], self.cfg["tagline"]))
+
+    def og_for(self, rel, alt):
+        """(absolute URL, width, height, alt) for a link-preview image under the brand folder."""
         base = os.environ.get("ASSET_BASE_URL", "").strip() or self.base_url
-        width, height = image_size(self.dir / og)
+        width, height = image_size(self.dir / rel)
         if (width, height) != (1200, 630):
-            self.warn("og_image is %dx%d; 1200x630 is recommended" % (width, height))
-        return base.rstrip("/") + "/" + og, width, height
+            self.warn("%s is %dx%d; 1200x630 is recommended for link previews" % (rel, width, height))
+        return base.rstrip("/") + "/" + rel, width, height, alt
 
     def icon_links(self, root):
         links = []
@@ -298,15 +318,17 @@ class Site:
         return ('    <nav class="social" aria-label="%s elsewhere">\n      <ul>\n%s\n      </ul>\n    </nav>'
                 % (esc(self.cfg["name"]), "\n".join(items)))
 
-    def write_page(self, rel_path, title, description, content, og_type="website", main_class="home"):
-        """rel_path is "" for the home page or e.g. "field-notes/triax-connectors/"."""
+    def write_page(self, rel_path, title, description, content, og_type="website", main_class="home",
+                   og_image=None, head_extra=""):
+        """rel_path is "" for the home page or e.g. "field-notes/triax-connectors/".
+        og_image overrides the brand's link-preview image for this page."""
         depth = rel_path.count("/")
         root = "../" * depth
         url = self.base_url + rel_path
         og_meta, card = "", "summary"
-        if self.og_image:
-            og_url, og_w, og_h = self.og_image
-            alt = "%s: %s" % (self.cfg["name"], self.cfg["tagline"])
+        og = og_image or self.og_image
+        if og:
+            og_url, og_w, og_h, alt = og
             og_meta = ('<meta property="og:image" content="%s">\n'
                        '<meta property="og:image:width" content="%d">\n'
                        '<meta property="og:image:height" content="%d">\n'
@@ -326,6 +348,7 @@ class Site:
             "theme_color": esc(self.theme["bg"]),
             "name": esc(self.cfg["name"]),
             "og_image_meta": og_meta,
+            "head_extra": head_extra,
             "twitter_card": card,
             "icon_links": self.icon_links(root),
             "theme_css": self.css_vars,
@@ -391,7 +414,28 @@ class Site:
                 items.append('        <li><div class="cta is-pending">%s</div></li>' % inner)
         return "\n".join(items)
 
-    def build_home(self, notes_cfg, notes):
+    def featured_html(self, articles):
+        slug = self.cfg.get("featured_article")
+        if not slug:
+            return ""
+        meta = next((m for m, _ in articles if m["slug"] == slug), None)
+        if meta is None:
+            raise BuildError("featured_article %r has no matching article" % slug)
+        art = meta["hero_image"]
+        w, h = image_size(self.dir / art)
+        kicker = "%s &middot; %s" % (esc(meta.get("kicker", "New project")), esc(human_date(meta["date"], short=True)))
+        return (
+            '    <a class="feature" href="%s/">\n'
+            '      <img class="feature-art" src="%s" alt="" width="%d" height="%d" decoding="async">\n'
+            '      <span class="feature-copy">'
+            '<span class="feature-kicker"><span class="feature-dot" aria-hidden="true"></span>%s</span>'
+            '<span class="feature-title">%s</span>'
+            '<span class="feature-text">%s</span>'
+            '<span class="cta-status" aria-hidden="true">Read the story &rarr;</span></span>\n'
+            '    </a>' % (esc(slug), esc(art), w, h, kicker, esc(meta.get("short_title", meta["title"])),
+                         esc(meta.get("feature_text") or meta.get("dek") or meta["summary"])))
+
+    def build_home(self, notes_cfg, notes, articles=()):
         cfg = self.cfg
         intro = cfg.get("intro", [])
         if isinstance(intro, str):
@@ -413,6 +457,7 @@ class Site:
             "cta_heading": esc(cfg.get("cta_heading", "Links")),
             "ctas_html": self.ctas_html(ctas),
             "notes_link_html": notes_link,
+            "featured_html": self.featured_html(articles),
         })
         self.write_page("", cfg["title"], cfg["description"], content)
 
@@ -463,8 +508,11 @@ class Site:
                 '          <dl>\n%s\n          </dl>%s\n'
                 '        </aside>') % ("\n".join(rows), link)
 
-    def gallery_html(self, items, indent, root):
-        """Chronological build log: numbered figures, each linking to its full-size image."""
+    def gallery_html(self, items, indent, root, variant=""):
+        """Chronological build log: numbered figures, each linking to its full-size image.
+        "::: gallery wide" shows one image per row at its natural shape (screenshots)."""
+        if variant not in ("", "wide"):
+            raise BuildError("unknown gallery variant %r (use 'wide' or nothing)" % variant)
         steps = []
         for i, item in enumerate(items, 1):
             rel = item["image"].lstrip("/")
@@ -485,7 +533,8 @@ class Site:
                 '%s    </figure>\n'
                 '%s  </li>' % (indent, esc(kind), indent, indent, src, src, esc(item["alt"]), w, h,
                                indent, i, esc(kind.capitalize()), md_inline(item["title"]), caption, indent, indent))
-        return '%s<ol class="build-log">\n%s\n%s</ol>' % (indent, "\n".join(steps), indent)
+        cls = "build-log is-wide" if variant == "wide" else "build-log"
+        return '%s<ol class="%s">\n%s\n%s</ol>' % (indent, cls, "\n".join(steps), indent)
 
     def build_notes(self, notes_cfg, cats, notes):
         path = notes_cfg["path"]
@@ -503,7 +552,7 @@ class Site:
                 "category_slug": esc(cat["slug"]),
                 "category_name": esc(cat["name"]),
                 "resource_html": self.resource_html(meta),
-                "body_html": md_to_html(body, render_gallery=lambda items, ind: self.gallery_html(items, ind, "../../")),
+                "body_html": md_to_html(body, render_gallery=lambda items, ind, v: self.gallery_html(items, ind, "../../", v)),
             })
             self.write_page("%s/%s/" % (path, meta["slug"]), "%s — %s — %s" % (meta["title"], title, name),
                             meta["summary"], content, og_type="article", main_class="page")
@@ -541,6 +590,118 @@ class Site:
         self.write_page(path + "/", "%s — %s" % (title, name), notes_cfg["description"], content,
                         main_class="page")
 
+    # -- articles: root-level project stories, /<slug>/
+
+    def load_articles(self):
+        cfg = self.cfg.get("articles")
+        if not cfg:
+            return []
+        reserved = {"assets", (self.cfg.get("notes") or {}).get("path"), (self.cfg.get("projects") or {}).get("path")}
+        articles = []
+        for path in sorted((self.dir / cfg.get("dir", "articles")).glob("*.md")):
+            meta, body = parse_note(path)
+            missing = [k for k in ARTICLE_REQUIRED if not meta.get(k)]
+            if missing:
+                raise BuildError("%s: missing %s" % (path.name, ", ".join(missing)))
+            meta["slug"] = meta.get("slug") or path.stem
+            if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", meta["slug"]) or meta["slug"] in reserved:
+                raise BuildError("%s: slug %r is not a usable URL segment" % (path.name, meta["slug"]))
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", meta["date"]):
+                raise BuildError("%s: date must be YYYY-MM-DD" % path.name)
+            for key in ("hero_image", "og_image"):
+                if meta.get(key) and not (self.dir / meta[key]).is_file():
+                    raise BuildError("%s: %s %s not found" % (path.name, key, meta[key]))
+            for line in body.splitlines():
+                for todo in re.findall(r"TODO:.*", line):
+                    self.warn("%s: %s" % (path.name, todo.strip()))
+            articles.append((meta, body))
+        return articles
+
+    def related_html(self, meta, root):
+        """Optional front-matter list 'related:' of "Label | site/relative/path" lines."""
+        items = meta.get("related") or []
+        if isinstance(items, str):
+            items = [items]
+        links = []
+        for item in items:
+            label, _, href = (p.strip() for p in item.partition("|"))
+            if not href:
+                raise BuildError("related item %r needs 'Label | path'" % item)
+            links.append('          <li><a href="%s%s">%s <span aria-hidden="true">&rarr;</span></a></li>'
+                         % (root, esc(href), esc(label)))
+        if not links:
+            return ""
+        return ('      <nav class="related" aria-labelledby="related-heading">\n'
+                '        <h2 id="related-heading">More from the bench</h2>\n        <ul>\n%s\n        </ul>\n'
+                '      </nav>' % "\n".join(links))
+
+    def build_articles(self, articles):
+        name = self.cfg["name"]
+        for meta, body in articles:
+            root = "../"
+            w, h = image_size(self.dir / meta["hero_image"])
+            projects = self.cfg.get("projects")
+            crumb = ('        <li><a href="%s%s/">%s</a></li>\n' % (root, esc(projects["path"]), esc(projects["title"]))
+                     if projects else "")
+            content = render(self.t["article"], {
+                "name": esc(name),
+                "projects_crumb": crumb,
+                "short_title": esc(meta.get("short_title", meta["title"])),
+                "kicker": esc(meta.get("kicker", "Project")),
+                "title": esc(meta["title"]),
+                "dek": esc(meta.get("dek", "")),
+                "date_iso": esc(meta["date"]),
+                "date_human": esc(human_date(meta["date"])),
+                "author": esc(meta.get("author", name)),
+                "hero_src": root + esc(meta["hero_image"]),
+                "hero_alt": esc(meta["hero_alt"]),
+                "hero_w": str(w),
+                "hero_h": str(h),
+                "body_html": md_to_html(body, render_gallery=lambda items, ind, v: self.gallery_html(items, ind, root, v)),
+                "related_html": self.related_html(meta, root),
+            })
+            og = self.og_for(meta["og_image"], meta.get("og_image_alt", meta["title"])) if meta.get("og_image") else None
+            head = '<meta property="article:published_time" content="%s">' % esc(meta["date"])
+            self.write_page("%s/" % meta["slug"], meta.get("seo_title", "%s — %s" % (meta["title"], name)),
+                            meta["summary"], content, og_type="article", main_class="page",
+                            og_image=og, head_extra=head)
+
+    # -- projects index: brand.json "projects" {path, title, description, intro, items: [...]}
+
+    def build_projects(self):
+        cfg = self.cfg.get("projects")
+        if not cfg:
+            return
+        for key in ("path", "title", "description", "items"):
+            if not cfg.get(key):
+                raise BuildError("projects.%s is required" % key)
+        root = "../"
+        cards = []
+        for item in cfg["items"]:
+            for key in ("title", "href", "summary", "image", "image_alt"):
+                if not item.get(key):
+                    raise BuildError("projects item %r missing %s" % (item.get("title", "?"), key))
+            if not (self.dir / item["image"]).is_file():
+                raise BuildError("projects image %s not found" % item["image"])
+            w, h = image_size(self.dir / item["image"])
+            cards.append(
+                '        <li><a class="project-card" href="%s%s">\n'
+                '          <span class="project-art"><img src="%s%s" alt="%s" width="%d" height="%d" decoding="async"></span>\n'
+                '          <span class="project-copy"><span class="note-card-kicker">%s</span>'
+                '<span class="project-title">%s</span><span class="note-card-summary">%s</span>'
+                '<span class="cta-status" aria-hidden="true">%s &rarr;</span></span>\n'
+                '        </a></li>' % (root, esc(item["href"]), root, esc(item["image"]), esc(item["image_alt"]), w, h,
+                                    esc(item.get("kicker", "")), esc(item["title"]), esc(item["summary"]),
+                                    esc(item.get("status", "Read more"))))
+        content = render(self.t["projects"], {
+            "name": esc(self.cfg["name"]),
+            "projects_title": esc(cfg["title"]),
+            "projects_intro": esc(cfg.get("intro", "")),
+            "projects_html": "\n".join(cards),
+        })
+        self.write_page(cfg["path"] + "/", "%s — %s" % (cfg["title"], self.cfg["name"]), cfg["description"],
+                        content, main_class="page")
+
     # -- whole site
 
     def build(self):
@@ -567,7 +728,10 @@ class Site:
         if not (touch and (self.dir / touch).is_file()):
             self.warn("apple_touch_icon missing (%s) — 180x180 PNG" % touch)
 
-        self.build_home(notes_cfg, notes)
+        articles = self.load_articles()
+        self.build_home(notes_cfg, notes, articles)
+        self.build_articles(articles)
+        self.build_projects()
         if notes_cfg:
             self.build_notes(notes_cfg, cats, notes)
 
@@ -597,7 +761,7 @@ def build_brand(brand_dir, templates, shared_css):
 
 def main(argv):
     templates = {name: (SHARED / ("%s.html" % name.replace("_", "-"))).read_text(encoding="utf-8")
-                 for name in ("layout", "home", "note", "notes_index")}
+                 for name in ("layout", "home", "note", "notes_index", "article", "projects")}
     shared_css = (SHARED / "styles.css").read_text(encoding="utf-8")
     if argv:
         dirs = [BRANDS / name for name in argv]

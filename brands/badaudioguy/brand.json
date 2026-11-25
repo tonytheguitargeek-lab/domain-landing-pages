@@ -27,7 +27,7 @@
     {
       "label": "Projects",
       "blurb": "Builds, fixes, and field notes from the truck.",
-      "href": "field-notes/beyer-headsets/#building-the-pocket-tester",
+      "href": "projects/",
       "status": "See the build"
     },
     {
@@ -66,6 +66,35 @@
     { "label": "Instagram", "url": "https://www.instagram.com/badaudioguy1/" },
     { "label": "Facebook", "url": "https://www.facebook.com/profile.php?id=61595033035430" }
   ],
+
+  "articles": { "dir": "articles" },
+  "projects": {
+    "path": "projects",
+    "title": "Projects",
+    "description": "Bad Audio Guy projects: Radio Gremlin, a homemade mesh operations center, and a pocket tester for 5-pin broadcast camera headsets.",
+    "intro": "Things built on the bench, newest first. Some are finished. Most are still evolving.",
+    "items": [
+      {
+        "title": "Radio Gremlin",
+        "kicker": "Mesh networking · Nov 2026",
+        "href": "radio-gremlin-mesh-observatory/",
+        "summary": "How a Meshtastic radio, an old iMac and some AI-assisted coding turned into a self-recovering mesh bot, a touchscreen monitor and a mesh observatory.",
+        "image": "assets/projects/radio-gremlin/radio-gremlin-badge.webp",
+        "image_alt": "Radio Gremlin badge: a grinning gremlin in a headset and sunglasses above the words Radio Gremlin, Mesh Operations Center.",
+        "status": "Read the story"
+      },
+      {
+        "title": "Pocket Headset Tester",
+        "kicker": "Test tools · Prototype",
+        "href": "field-notes/beyer-headsets/#building-the-pocket-tester",
+        "summary": "A one-button pocket tester for 5-pin broadcast camera headsets, from the Rev A3 board design to a printed case in hand.",
+        "image": "assets/projects/headset-tester/05-closed-prototype.jpg",
+        "image_alt": "Closed black 3D-printed prototype case with a round stainless test button and three small LED holes.",
+        "status": "See the build"
+      }
+    ]
+  },
+  "featured_article": "radio-gremlin-mesh-observatory",
 
   "copyright_holder": "Bad Audio Guy",
 

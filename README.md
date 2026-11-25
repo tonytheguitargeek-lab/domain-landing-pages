@@ -58,6 +58,8 @@ The build lists missing assets and any copy still marked `TODO`.
 python3 -m http.server 8080 -d dist/badaudioguy.com
 ```
 
+For previews, build with `NO_ANALYTICS=1 python3 build.py` so local visits don't reach Cloudflare Web Analytics.
+
 Open http://127.0.0.1:8080. To check from a phone on the same Wi-Fi, add `--bind 0.0.0.0` and
 open `http://<this-mac's-LAN-IP>:8080` (`ipconfig getifaddr en1` on this iMac; `en0` on most laptops).
 
