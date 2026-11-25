@@ -259,6 +259,12 @@ There's also plenty of room for future experimentation with antennas, coverage m
 
 This isn't a finished commercial product. It's a personal experiment that keeps evolving.
 
+## Get the Code {#code}
+
+After requests from the Meshtastic community on Reddit, Radio Gremlin is now available as an experimental preview on GitHub: **[Radio Gremlin on GitHub](https://github.com/tonytheguitargeek-lab/Radio-Gremlin)**.
+
+It's free and open source under GPLv3, and built on Meshing Around by Kelly Keeton, K7MHI. It's still an experiment, so read the README's notes on security and on MQTT versus RF before you install it.
+
 ## The Best Part
 
 I didn't start out with a grand plan to build a mesh operations center.
@@ -282,5 +288,6 @@ More to come.
 
 New developments will be added here as Radio Gremlin keeps evolving.
 
+- **November 25, 2026:** Radio Gremlin V0.1, Experimental Preview, released on [GitHub](https://github.com/tonytheguitargeek-lab/Radio-Gremlin/releases/tag/v0.1).
 - **November 24, 2026:** First write-up. Mesh Command, the watchdog, Mesh Observatory, Mesh Radar and Gremlin Control Center are all running. Next up: let it run unattended and see what the radio hears.
 :::
